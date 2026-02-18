@@ -2,45 +2,51 @@
 
 <html>
 <head>
-<script src=""></script>
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzBrtjoKMvocwPTdXJMK91rVbRms-RA4BGnWb3tmjffNE5AOQGGpPv3eh-dxVcuXjy-/exec";<title>Arsip Digital | Biipsite.Art</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<title>Arsip Digital Biipsite</title>
 </head>
-<body class="bg-slate-100 p-8">
-<div class="max-w-5xl mx-auto">
-<h1 class="text-3xl font-bold text-slate-800 mb-8 uppercase">Sistem Arsip Digital <span class="text-blue-600">Biipsite</span></h1>
-<div class="bg-white p-6 rounded-xl shadow-md mb-8">
-<h2 class="font-bold mb-4">Upload Dokumen Baru</h2>
-<div class="grid grid-cols-2 gap-4">
-<input type="text" id="namaDoc" placeholder="Nama Dokumen" class="border p-2 rounded">
-<select id="kategori" class="border p-2 rounded">
+<body class="bg-gray-100 p-5">
+<div class="max-w-xl mx-auto bg-white p-6 rounded shadow-xl mt-10">
+<h2 class="text-xl font-bold mb-4 text-center text-blue-600">UPLOAD ARSIP DIGITAL</h2>
+<input type="text" id="n" placeholder="Nama Dokumen" class="w-full border p-2 mb-2 rounded">
+<select id="k" class="w-full border p-2 mb-2 rounded">
 <option>Surat Masuk</option>
 <option>Data Pegawai</option>
-<option>Barang Masuk</option>
-<option>Barang Keluar</option>
 <option>Absen Pegawai</option>
-<option>Sppd Dalam Daerah</option>
-<option>Sppd Luar Daerah</option>
+<option>SPPD</option>
 <option>Arsip Kegiatan</option>
 </select>
-<input type="date" id="tglDoc" class="border p-2 rounded">
-<input type="file" id="fileInput" class="border p-2 rounded">
+<input type="date" id="t" class="w-full border p-2 mb-2 rounded">
+<input type="file" id="f" class="w-full border p-2 mb-4 rounded">
+<button onclick="up()" id="btn" class="w-full bg-blue-600 text-white p-3 rounded font-bold">SIMPAN KE ARSIP</button>
 </div>
-<button onclick="prosesUpload()" id="btnUpload" class="mt-4 bg-blue-600 text-white px-6 py-2 rounded font-bold hover:bg-blue-700">SIMPAN KE ARSIP</button>
-</div>
-<div class="bg-white rounded-xl shadow-md overflow-hidden">
-<table class="w-full text-left" id="tabelArsip">
-<thead class="bg-slate-50 text-slate-500 text-sm uppercase">
-<tr>
-<th class="p-4">Tanggal Arsip</th>
-<th class="p-4">Nama Dokumen</th>
-<th class="p-4">Kategori</th>
-<th class="p-4">Aksi</th>
-</tr>
-</thead>
-<tbody id="isiTabel" class="divide-y"></tbody>
-</table>
-</div>
-</div>
+
+<script>
+const URL_MESIN = "https://script.google.com/macros/s/AKfycbwNeP5Sug75L1TM1wn5Pp3GW_4itXrWZ3UVsX_pFHCOua2jvtLzM9bA0Sf7ap_gpnqz/exec";
+
+function up() {
+const fileInput = document.getElementById('f');
+const btn = document.getElementById('btn');
+const file = fileInput.files[0];
+const reader = new FileReader();
+btn.innerText = "Sedang Mengirim...";
+btn.disabled = true;
+reader.onload = function(e) {
+const payload = {
+data: e.target.result.split(',')[1],
+type: file.type,
+name: file.name,
+namaDoc: document.getElementById('n').value,
+kategori: document.getElementById('k').value,
+tglDoc: document.getElementById('t').value
+};
+fetch(URL_MESIN, { method: "POST", body: JSON.stringify(payload) })
+.then(() => { alert("Berhasil!"); location.reload(); })
+.catch(() => { alert("Selesai!"); location.reload(); });
+};
+reader.readAsDataURL(file);
+}
+</script>
 
 </body>
 </html>
