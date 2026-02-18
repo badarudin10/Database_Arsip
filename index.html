@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <title>Arsip Digital | Biipsite.Art</title>
+</head>
+<body class="bg-slate-100 p-8">
+    <div class="max-w-5xl mx-auto">
+        <h1 class="text-3xl font-bold text-slate-800 mb-8 uppercase">Sistem Arsip Digital <span class="text-blue-600">Biipsite</span></h1>
+        
+        <div class="bg-white p-6 rounded-xl shadow-md mb-8">
+            <h2 class="font-bold mb-4">Upload Dokumen Baru</h2>
+            <div class="grid grid-cols-2 gap-4">
+                <input type="text" id="namaDoc" placeholder="Nama Dokumen" class="border p-2 rounded">
+                <select id="kategori" class="border p-2 rounded">
+                    <option>Surat Masuk</option>
+                    <option>Invoice/Keuangan</option>
+                    <option>Kontrak Kerjasama</option>
+                    <option>Legalitas/Izin</option>
+                </select>
+                <input type="date" id="tglDoc" class="border p-2 rounded">
+                <input type="file" id="fileInput" class="border p-2 rounded">
+            </div>
+            <button onclick="prosesUpload()" id="btnUpload" class="mt-4 bg-blue-600 text-white px-6 py-2 rounded font-bold hover:bg-blue-700">SIMPAN KE ARSIP</button>
+        </div>
+
+        <div class="bg-white rounded-xl shadow-md overflow-hidden">
+            <div class="p-4 border-b bg-slate-50 flex justify-between">
+                <h2 class="font-bold text-slate-700">Daftar Dokumen Tersimpan</h2>
+                <input type="text" id="cari" onkeyup="filterTabel()" placeholder="Cari dokumen..." class="border px-3 py-1 rounded text-sm">
+            </div>
+            <table class="w-full text-left" id="tabelArsip">
+                <thead class="bg-slate-50 text-slate-500 text-sm uppercase">
+                    <tr>
+                        <th class="p-4">Tanggal Arsip</th>
+                        <th class="p-4">Nama Dokumen</th>
+                        <th class="p-4">Kategori</th>
+                        <th class="p-4">Aksi</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y">
+                    </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        // Logika upload dan fetch data akan ditaruh di sini
+        function prosesUpload() {
+            const file = document.getElementById('fileInput').files[0];
+            const reader = new FileReader();
+            const btn = document.getElementById('btnUpload');
+            
+            btn.innerText = "Sedang Mengarsipkan...";
+            btn.disabled = true;
+
+            reader.onload = function(e) {
+                const data = {
+                    data: e.target.result.split(',')[1],
+                    type: file.type,
+                    name: file.name,
+                    namaDoc: document.getElementById('namaDoc').value,
+                    kategori: document.getElementById('kategori').value,
+                    tglDoc: document.getElementById('tglDoc').value
+                };
+                
+                google.script.run.withSuccessHandler(res => {
+                    alert(res);
+                    location.reload();
+                }).uploadFile(data);
+            };
+            reader.readAsDataURL(file);
+        }
+    </script>
+</body>
+</html>
