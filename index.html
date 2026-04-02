@@ -140,16 +140,67 @@
     </div>
 
     <script>
-        // Logika Pencarian
-        function filterTable() {
-            const input = document.getElementById("searchInput");
-            const filter = input.value.toUpperCase();
-            const table = document.getElementById("archiveTable");
-            const tr = table.getElementsByTagName("tr");
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbz2lWft_H05FZr3MJXwV-03dgIUHwIDdVZXjMtXyMK2ZcaQAQ57l4vPjG8IrjDLTvCv/exec";
 
-            for (let i = 1; i < tr.length; i++) {
-                let textContent = tr[i].textContent || tr[i].innerText;
-                tr[i].style.display = textContent.toUpperCase().indexOf(filter) > -1 ? "" : "none";
+// 1. Fungsi Ambil Data Saat Web Dibuka
+async function loadData() {
+    const response = await fetch(SCRIPT_URL);
+    const data = await response.json();
+    const tableBody = document.getElementById('tableBody');
+    tableBody.innerHTML = ''; // Kosongkan tabel dummy
+
+    data.forEach(row => {
+        const tr = document.createElement('tr');
+        tr.className = "hover:bg-blue-50/40 transition-colors border-b border-gray-50";
+        tr.innerHTML = `
+            <td class="px-6 py-4 text-sm text-gray-500">${new Date(row[0]).toLocaleDateString()}</td>
+            <td class="px-6 py-4 font-semibold text-gray-800">${row[1]}</td>
+            <td class="px-6 py-4"><span class="px-3 py-1 text-xs font-medium bg-blue-100 text-blue-600 rounded-full">${row[2]}</span></td>
+            <td class="px-6 py-4 text-right">
+                <button onclick="openPreview('${row[3]}')" class="text-blue-600 hover:bg-blue-100 px-4 py-2 rounded-lg text-sm font-medium">Lihat</button>
+            </td>
+        `;
+        tableBody.appendChild(tr);
+    });
+}
+
+// 2. Fungsi Upload File
+document.getElementById('uploadForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    const fileInput = document.getElementById('fileInput');
+    const nama = document.getElementById('namaFile').value;
+    const kategori = "Umum"; // Bisa ditambah input kategori di HTML
+
+    if (fileInput.files.length === 0) return alert("Pilih file dulu!");
+
+    const file = fileInput.files[0];
+    const reader = new FileReader();
+    
+    reader.onload = async function() {
+        const base64Data = reader.result.split(',')[1];
+        const payload = new URLSearchParams({
+            fileData: base64Data,
+            fileName: file.name,
+            mimeType: file.type,
+            nama: nama,
+            kategori: kategori
+        });
+
+        const response = await fetch(SCRIPT_URL, {
+            method: 'POST',
+            body: payload
+        });
+
+        if (response.ok) {
+            alert("File Berhasil Terarsip!");
+            location.reload(); // Refresh untuk melihat data baru
+        }
+    };
+    reader.readAsDataURL(file);
+});
+
+// Jalankan loadData saat web dibuka
+window.onload = loadData;
             }
         }
 
