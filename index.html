@@ -1,52 +1,86 @@
-<!DOCTYPE html>
-
-<html>
-<head>
-<script src="https://cdn.tailwindcss.com"></script>
-<title>Arsip Digital Biipsite</title>
-</head>
-<body class="bg-gray-100 p-5">
-<div class="max-w-xl mx-auto bg-white p-6 rounded shadow-xl mt-10">
-<h2 class="text-xl font-bold mb-4 text-center text-blue-600">UPLOAD ARSIP DIGITAL</h2>
-<input type="text" id="n" placeholder="Nama Dokumen" class="w-full border p-2 mb-2 rounded">
-<select id="k" class="w-full border p-2 mb-2 rounded">
-<option>Surat Masuk</option>
-<option>Data Pegawai</option>
-<option>Absen Pegawai</option>
-<option>SPPD</option>
-<option>Arsip Kegiatan</option>
-</select>
-<input type="date" id="t" class="w-full border p-2 mb-2 rounded">
-<input type="file" id="f" class="w-full border p-2 mb-4 rounded">
-<button onclick="up()" id="btn" class="w-full bg-blue-600 text-white p-3 rounded font-bold">SIMPAN KE ARSIP</button>
+<div class="mb-6 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+    <div class="relative w-full md:w-1/3">
+        <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-400">
+            <i class="fas fa-search"></i>
+        </span>
+        <input type="text" id="searchInput" onkeyup="filterTable()" 
+            class="block w-full pl-10 pr-3 py-2 border border-gray-200 rounded-lg leading-5 bg-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-150" 
+            placeholder="Cari surat, pegawai, atau barang...">
+    </div>
+    
+    <div class="flex gap-2">
+        <button onclick="exportData()" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition">
+            <i class="fas fa-file-excel mr-2"></i> Ekspor
+        </button>
+    </div>
 </div>
 
-<script>
-const URL_MESIN = "https://script.google.com/macros/s/AKfycbyV3oYcZKg755jiglbrwV00E41K80XDac952-9pcJSLDjfhiuftYfKiEpehxBISjY0I/exec";
+<div class="overflow-x-auto bg-white rounded-xl shadow-sm border border-gray-100">
+    <table class="min-w-full divide-y divide-gray-200" id="archiveTable">
+        <thead class="bg-gray-50">
+            <tr>
+                <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Tanggal</th>
+                <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Judul Dokumen</th>
+                <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Kategori</th>
+                <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Status</th>
+                <th class="px-6 py-3 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider">Aksi</th>
+            </tr>
+        </thead>
+        <tbody class="divide-y divide-gray-100 bg-white" id="tableBody">
+            <tr class="hover:bg-blue-50/50 transition">
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">2024-05-20</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">SK Pengangkatan Pegawai</td>
+                <td class="px-6 py-4 whitespace-nowrap"><span class="px-2 py-1 text-xs bg-blue-100 text-blue-700 rounded-full">Data Pegawai</span></td>
+                <td class="px-6 py-4 whitespace-nowrap"><span class="flex items-center text-sm text-green-600"><i class="fas fa-check-circle mr-1"></i> Aktif</span></td>
+                <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                    <button onclick="openPreview('LINK_GOOGLE_DRIVE')" class="text-blue-600 hover:text-blue-900 mr-3">Pratinjau</button>
+                    <a href="#" class="text-gray-400 hover:text-gray-600">Unduh</a>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div>
 
-function up() {
-const fileInput = document.getElementById('f');
-const btn = document.getElementById('btn');
-const file = fileInput.files[0];
-const reader = new FileReader();
-btn.innerText = "Sedang Mengirim...";
-btn.disabled = true;
-reader.onload = function(e) {
-const payload = {
-data: e.target.result.split(',')[1],
-type: file.type,
-name: file.name,
-namaDoc: document.getElementById('n').value,
-kategori: document.getElementById('k').value,
-tglDoc: document.getElementById('t').value
-};
-fetch(URL_MESIN, { method: "POST", body: JSON.stringify(payload) })
-.then(() => { alert("Berhasil!"); location.reload(); })
-.catch(() => { alert("Selesai!"); location.reload(); });
-};
-reader.readAsDataURL(file);
+<div id="previewModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl w-full max-w-4xl h-[80vh] flex flex-col">
+        <div class="p-4 border-b flex justify-between items-center">
+            <h3 class="font-bold text-gray-700">Pratinjau Dokumen</h3>
+            <button onclick="closePreview()" class="text-gray-400 hover:text-red-500 text-2xl">&times;</button>
+        </div>
+        <div class="flex-grow bg-gray-100">
+            <iframe id="previewFrame" src="" class="w-full h-full border-none"></iframe>
+        </div>
+    </div>
+</div>
+// Fungsi Pencarian Real-time
+function filterTable() {
+    let input = document.getElementById("searchInput");
+    let filter = input.value.toUpperCase();
+    let table = document.getElementById("archiveTable");
+    let tr = table.getElementsByTagName("tr");
+
+    for (let i = 1; i < tr.length; i++) {
+        let td = tr[i].getElementsByTagName("td");
+        let found = false;
+        for (let j = 0; j < td.length; j++) {
+            if (td[j].innerHTML.toUpperCase().indexOf(filter) > -1) {
+                found = true;
+                break;
+            }
+        }
+        tr[i].style.display = found ? "" : "none";
+    }
 }
-</script>
 
-</body>
-</html>
+// Fungsi Modal Preview
+function openPreview(url) {
+    // Mengubah link share Google Drive menjadi link preview embed
+    const embedUrl = url.replace('/view', '/preview');
+    document.getElementById('previewFrame').src = embedUrl;
+    document.getElementById('previewModal').classList.remove('hidden');
+}
+
+function closePreview() {
+    document.getElementById('previewModal').classList.add('hidden');
+    document.getElementById('previewFrame').src = '';
+}
