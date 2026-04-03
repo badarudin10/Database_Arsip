@@ -53,7 +53,7 @@
     </div>
 
     <script>
-        https://script.google.com/macros/s/AKfycbxJPexBt6Pn79Z0PKYiT9pNLzcR78xr8yh7t45yUYA7HTd9V1akEqRrpIlVjtXnUCOm/exec
+        https://script.google.com/macros/s/AKfycbwg_cy2R6iuaW8nMp4NfcE7Oa2HX7lWKleSax3j1tUVAZvn99FdtlGqrWqcughp5CmG/exec
         const API_URL = "URL_WEB_APP_KAMU_DARI_LANGKAH_DI_ATAS";
 
 // 1. Fungsi Ambil Data Otomatis
@@ -89,6 +89,7 @@ async function loadData() {
 }
 
 // 2. Fungsi Upload
+// Fungsi Upload File ke Google Drive & Sheets
 document.getElementById('uploadForm').addEventListener('submit', async (e) => {
     e.preventDefault();
     const btn = document.getElementById('btnSimpan');
@@ -97,6 +98,7 @@ document.getElementById('uploadForm').addEventListener('submit', async (e) => {
 
     if (!fileInput.files[0]) return alert("Pilih file dulu!");
 
+    // Efek Loading pada Tombol
     btn.disabled = true;
     btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Mengupload...';
 
@@ -113,19 +115,32 @@ document.getElementById('uploadForm').addEventListener('submit', async (e) => {
             kategori: "Digital Archive"
         });
 
-        // Kirim ke Google
         try {
-            await fetch(API_URL, { method: 'POST', body: params, mode: 'no-cors' });
-            alert("Arsip Berhasil Disimpan!");
-            location.reload(); 
+            // PROSES KIRIM DATA
+            const response = await fetch(API_URL, { 
+                method: 'POST', 
+                body: params, 
+                mode: 'no-cors' // Penting agar tidak kena blokir browser
+            });
+
+            // BAGIAN YANG KAMU TANYAKAN (Diletakkan di sini)
+            if (response) {
+                alert("Berhasil Terarsip!");
+                document.getElementById('uploadForm').reset(); // Form jadi kosong lagi
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-save mr-2"></i>Simpan';
+                
+                // Menarik data terbaru tanpa perlu refresh halaman manual
+                loadData(); 
+            }
         } catch (err) {
-            alert("Gagal mengupload. Cek koneksi.");
+            alert("Gagal mengupload. Pastikan URL Web App sudah benar.");
             btn.disabled = false;
             btn.innerHTML = "Simpan";
         }
     };
     reader.readAsDataURL(file);
-});
+});});
 
 // 3. Fungsi Preview (Biar tidak Error 404)
 function openPreview(url) {
