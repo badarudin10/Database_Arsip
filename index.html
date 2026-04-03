@@ -3,13 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Biipsite | Digital Archive</title>
+    <title>Biipsite | Digital Archive v2</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         body { font-family: 'Inter', sans-serif; }
         .glass { backdrop-filter: blur(10px); background: rgba(255, 255, 255, 0.8); }
+        .loader-spin { animation: spin 1s linear infinite; }
+        @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
     </style>
 </head>
 <body class="bg-slate-50 text-slate-900 min-h-screen">
@@ -20,38 +22,40 @@
                 <h1 class="text-3xl font-bold text-blue-600 tracking-tight">Biipsite.Art</h1>
                 <p class="text-slate-500 text-sm">Sistem Arsip Digital Terintegrasi</p>
             </div>
-            <div class="bg-white px-4 py-2 rounded-2xl shadow-sm border border-slate-100 flex items-center">
-                <div class="w-3 h-3 bg-green-500 rounded-full mr-2 animate-pulse"></div>
-                <span class="text-xs font-bold text-slate-600 uppercase">Database Connected</span>
+            <div class="hidden md:flex bg-white px-4 py-2 rounded-2xl shadow-sm border border-slate-100 items-center">
+                <div class="w-2 h-2 bg-green-500 rounded-full mr-2 animate-pulse"></div>
+                <span class="text-[10px] font-bold text-slate-600 uppercase tracking-widest">System Active</span>
             </div>
         </header>
 
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
             <div class="lg:col-span-1">
                 <div class="bg-white p-6 rounded-3xl shadow-sm border border-slate-100 sticky top-8">
-                    <h2 class="text-lg font-bold mb-4 flex items-center">
-                        <i class="fas fa-cloud-upload-alt mr-2 text-blue-500"></i> Upload Arsip
+                    <h2 class="text-lg font-bold mb-4 flex items-center text-slate-700">
+                        <i class="fas fa-file-upload mr-2 text-blue-500"></i> Simpan Arsip
                     </h2>
                     <form id="uploadForm" class="space-y-4">
                         <div>
-                            <label class="block text-xs font-bold text-slate-400 uppercase mb-1">Nama Dokumen</label>
-                            <input type="text" id="namaFile" placeholder="Contoh: Surat Izin A1" class="w-full p-3 rounded-xl bg-slate-50 border-none ring-1 ring-slate-200 focus:ring-2 focus:ring-blue-500 outline-none transition" required>
+                            <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1 ml-1">Nama Dokumen</label>
+                            <input type="text" id="namaFile" placeholder="Masukkan nama file..." class="w-full p-3 rounded-xl bg-slate-50 border-none ring-1 ring-slate-200 focus:ring-2 focus:ring-blue-500 outline-none transition text-sm" required>
                         </div>
                         <div>
-                            <label class="block text-xs font-bold text-slate-400 uppercase mb-1">Pilih File</label>
-                            <input type="file" id="fileInput" class="w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-bold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 cursor-pointer" required>
+                            <label class="block text-[10px] font-bold text-slate-400 uppercase mb-1 ml-1">Pilih File</label>
+                            <div class="relative group">
+                                <input type="file" id="fileInput" class="w-full text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-[10px] file:font-bold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 cursor-pointer border border-dashed border-slate-200 p-2 rounded-xl" required>
+                            </div>
                         </div>
-                        <button type="submit" id="btnSimpan" class="w-full bg-blue-600 text-white font-bold py-3 rounded-xl hover:bg-blue-700 shadow-lg shadow-blue-200 transition-all flex justify-center items-center">
-                            <i class="fas fa-save mr-2"></i> Simpan ke Arsip
+                        <button type="submit" id="btnSimpan" class="w-full bg-blue-600 text-white font-bold py-3 rounded-xl hover:bg-blue-700 shadow-lg shadow-blue-100 transition-all flex justify-center items-center group">
+                            <i class="fas fa-cloud-upload-alt mr-2 group-hover:-translate-y-1 transition"></i> Simpan Sekarang
                         </button>
                     </form>
                 </div>
             </div>
 
             <div class="lg:col-span-2 space-y-6">
-                <div class="relative">
-                    <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"></i>
-                    <input type="text" id="searchInput" onkeyup="filterTable()" placeholder="Cari nama dokumen atau tanggal..." class="w-full pl-12 pr-4 py-4 rounded-2xl border-none shadow-sm ring-1 ring-slate-200 focus:ring-2 focus:ring-blue-500 outline-none transition">
+                <div class="relative group">
+                    <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-blue-500 transition"></i>
+                    <input type="text" id="searchInput" onkeyup="filterTable()" placeholder="Cari arsip berdasarkan nama..." class="w-full pl-12 pr-4 py-4 rounded-2xl border-none shadow-sm ring-1 ring-slate-200 focus:ring-2 focus:ring-blue-500 outline-none transition">
                 </div>
 
                 <div class="bg-white rounded-3xl shadow-sm border border-slate-100 overflow-hidden">
@@ -59,17 +63,17 @@
                         <table class="w-full text-left border-collapse" id="archiveTable">
                             <thead class="bg-slate-50/50 border-b border-slate-100">
                                 <tr>
-                                    <th class="p-4 text-[10px] font-bold text-slate-400 uppercase tracking-wider text-center w-20">No</th>
-                                    <th class="p-4 text-[10px] font-bold text-slate-400 uppercase tracking-wider">Detail Dokumen</th>
-                                    <th class="p-4 text-[10px] font-bold text-slate-400 uppercase tracking-wider text-right">Aksi</th>
+                                    <th class="p-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Detail Dokumen</th>
+                                    <th class="p-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest text-right">Tindakan</th>
                                 </tr>
                             </thead>
                             <tbody id="tableBody" class="divide-y divide-slate-50">
                                 </tbody>
                         </table>
                     </div>
-                    <div id="loader" class="p-10 text-center text-slate-400">
-                        <i class="fas fa-spinner fa-spin mr-2"></i> Menghubungkan ke database...
+                    <div id="loader" class="p-16 text-center text-slate-400">
+                        <i class="fas fa-circle-notch loader-spin text-2xl text-blue-500 mb-2"></i>
+                        <p class="text-xs font-medium">Menghubungkan ke Google Database...</p>
                     </div>
                 </div>
             </div>
@@ -77,29 +81,29 @@
     </div>
 
     <div id="previewModal" class="hidden fixed inset-0 z-50 glass flex items-center justify-center p-4">
-        <div class="bg-white w-full max-w-5xl h-[90vh] rounded-[2rem] shadow-2xl flex flex-col overflow-hidden border border-slate-200">
-            <div class="p-5 border-b flex justify-between items-center bg-white">
+        <div class="bg-white w-full max-w-5xl h-[90vh] rounded-[2.5rem] shadow-2xl flex flex-col overflow-hidden border border-slate-200">
+            <div class="p-6 border-b flex justify-between items-center bg-white">
                 <div class="flex items-center">
-                    <div class="w-10 h-10 bg-blue-100 rounded-xl flex items-center justify-center text-blue-600 mr-3">
+                    <div class="w-10 h-10 bg-blue-50 rounded-xl flex items-center justify-center text-blue-600 mr-3">
                         <i class="fas fa-file-alt"></i>
                     </div>
-                    <span class="font-bold text-slate-700 text-lg">Pratinjau Dokumen</span>
+                    <span class="font-bold text-slate-700 text-lg uppercase tracking-tight">Pratinjau Arsip</span>
                 </div>
                 <button onclick="closePreview()" class="w-10 h-10 rounded-full hover:bg-slate-100 text-slate-400 transition flex items-center justify-center">
-                    <i class="fas fa-times"></i>
+                    <i class="fas fa-times text-xl"></i>
                 </button>
             </div>
-            <div class="flex-grow bg-slate-100">
+            <div class="flex-grow bg-slate-100 relative">
                 <iframe id="previewFrame" class="w-full h-full border-none" src=""></iframe>
             </div>
         </div>
     </div>
 
     <script>
-        // URL WEB APP KAMU
-        const API_URL = "https://script.google.com/macros/s/AKfycbzVexWbfXhg6GZz3mJMP1iG68_ULifrmAmYRmth0ugJLGGnKoflI-IVzhkhDWgFttWx/exec";
+        // MENGGUNAKAN URL WEB APP TERBARU ANDA
+        const API_URL = "https://script.google.com/macros/s/AKfycbyS3va4eT5vqSKSivU3SZyAVLgnh0FzT65nPVH6Cupd9UCqbguY71p_tPCOws5NFTw/exec";
 
-        // 1. Ambil Data dari Google Sheets
+        // 1. Ambil Data (GET)
         async function loadData() {
             const tableBody = document.getElementById('tableBody');
             const loader = document.getElementById('loader');
@@ -111,38 +115,35 @@
                 loader.style.display = 'none';
                 tableBody.innerHTML = '';
 
-                if (data.length === 0) {
-                    tableBody.innerHTML = '<tr><td colspan="3" class="p-10 text-center text-slate-400 italic">Belum ada arsip. Silakan upload file pertama Anda.</td></tr>';
+                if (!data || data.length === 0) {
+                    tableBody.innerHTML = '<tr><td colspan="2" class="p-16 text-center text-slate-300 italic text-sm">Database masih kosong. Silakan simpan dokumen pertama Anda.</td></tr>';
                     return;
                 }
 
-                data.reverse().forEach((row, index) => {
+                data.reverse().forEach((row) => {
                     const tr = document.createElement('tr');
-                    tr.className = "hover:bg-blue-50/30 transition group";
+                    tr.className = "hover:bg-slate-50/80 transition-all";
                     tr.innerHTML = `
-                        <td class="p-4 text-center text-xs font-bold text-slate-300">${data.length - index}</td>
                         <td class="p-4">
                             <div class="text-sm font-bold text-slate-700">${row[1]}</div>
-                            <div class="text-[10px] text-slate-400 mt-1">
-                                <i class="far fa-calendar-alt mr-1"></i> ${new Date(row[0]).toLocaleDateString('id-ID', {day:'2-digit', month:'short', year:'numeric'})}
-                                <span class="mx-2">•</span>
-                                <i class="fas fa-tag mr-1"></i> ${row[2]}
+                            <div class="text-[10px] text-slate-400 mt-1 uppercase font-semibold">
+                                <i class="far fa-calendar-alt mr-1"></i> ${new Date(row[0]).toLocaleDateString('id-ID', {day:'2-digit', month:'long', year:'numeric'})}
                             </div>
                         </td>
                         <td class="p-4 text-right">
-                            <button onclick="openPreview('${row[3]}')" class="bg-white border border-slate-200 px-4 py-2 rounded-xl text-xs font-bold text-blue-600 hover:bg-blue-600 hover:text-white transition-all shadow-sm">
-                                <i class="fas fa-eye mr-1"></i> Lihat
+                            <button onclick="openPreview('${row[3]}')" class="bg-blue-50 text-blue-600 px-4 py-2 rounded-xl text-[10px] font-bold hover:bg-blue-600 hover:text-white transition-all">
+                                BUKA FILE
                             </button>
                         </td>
                     `;
                     tableBody.appendChild(tr);
                 });
             } catch (e) {
-                loader.innerHTML = '<span class="text-red-500 italic font-bold">Koneksi Error. Pastikan Deploy Apps Script sudah "Anyone".</span>';
+                loader.innerHTML = '<p class="text-red-400 text-xs font-bold italic">Terjadi kesalahan sinkronisasi database.</p>';
             }
         }
 
-        // 2. Fungsi Upload ke Google Drive & Sheets
+        // 2. Kirim Data (JSON POST) - Metode ini jauh lebih cepat!
         document.getElementById('uploadForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const btn = document.getElementById('btnSimpan');
@@ -150,39 +151,43 @@
             const nama = document.getElementById('namaFile').value;
 
             btn.disabled = true;
-            btn.innerHTML = '<i class="fas fa-circle-notch fa-spin mr-2"></i>Memproses...';
+            btn.innerHTML = '<i class="fas fa-circle-notch loader-spin mr-2"></i>Mengirim ke Google...';
 
             const file = fileInput.files[0];
             const reader = new FileReader();
             
             reader.onload = async () => {
                 const base64 = reader.result.split(',')[1];
-                const params = new URLSearchParams({
+                
+                // Membuat paket data JSON
+                const payload = JSON.stringify({
                     fileData: base64,
                     fileName: file.name,
                     mimeType: file.type,
-                    nama: nama,
-                    kategori: "Arsip Utama"
+                    nama: nama
                 });
 
                 try {
-                    // Kirim ke Google
-                    await fetch(API_URL, { method: 'POST', body: params, mode: 'no-cors' });
-                    alert("Arsip Berhasil Disimpan!");
+                    // Kirim ke Google Apps Script
+                    await fetch(API_URL, { 
+                        method: 'POST', 
+                        body: payload,
+                        headers: { 'Content-Type': 'text/plain;charset=utf-8' } // Menghindari masalah preflight
+                    });
+
+                    alert("Dokumen berhasil tersimpan di Cloud Biipsite!");
                     location.reload(); 
                 } catch (err) {
-                    alert("Gagal mengupload file.");
+                    alert("Koneksi gagal. Periksa izin Apps Script Anda.");
                     btn.disabled = false;
-                    btn.innerHTML = "Simpan ke Arsip";
+                    btn.innerHTML = "Simpan Sekarang";
                 }
             };
             reader.readAsDataURL(file);
         });
 
-        // 3. Fungsi Preview modal
         function openPreview(url) {
             const frame = document.getElementById('previewFrame');
-            // Ubah link view Google Drive jadi link preview
             const previewUrl = url.replace('/view?usp=drivesdk', '/preview').replace('/view', '/preview');
             frame.src = previewUrl;
             document.getElementById('previewModal').classList.remove('hidden');
@@ -195,7 +200,6 @@
             document.body.style.overflow = 'auto';
         }
 
-        // 4. Pencarian Real-time
         function filterTable() {
             const input = document.getElementById("searchInput").value.toUpperCase();
             const rows = document.getElementById("tableBody").getElementsByTagName("tr");
@@ -205,7 +209,6 @@
             }
         }
 
-        // Jalankan saat load halaman
         window.onload = loadData;
     </script>
 </body>
